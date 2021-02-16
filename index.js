@@ -1,3 +1,4 @@
+const Joi = require('joi'); // variable starts from upper case cause that is returned is class; pascal naming convention is used in js
 const express = require('express');
 const app = express();
 
@@ -24,9 +25,17 @@ app.get('/api/courses/:id', (req, res) => {
 });
 
 app.post('/api/courses', (req, res) => {
-    if (!req.body.name || req.body.name.length < 3) {
+    // using Joi we have to define a schema
+    const schema = {
+        name: Joi.string().min(3).required()
+    };
+
+    const result = Joi.validate(req.body, schema);
+    console.log(result);
+
+    if (result.error) {
         // 400 bad request
-        res.status(400).send('Name is required and should be minimum 3 characters');
+        res.status(400).send(result.error.details[0].message);
         return;
     }
 
