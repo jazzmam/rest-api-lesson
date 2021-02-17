@@ -31,7 +31,6 @@ app.post('/api/courses', (req, res) => {
     };
 
     const result = Joi.validate(req.body, schema);
-    console.log(result);
 
     if (result.error) {
         // 400 bad request
@@ -47,6 +46,26 @@ app.post('/api/courses', (req, res) => {
     res.send(course);
 });
 
+app.put('/appi/courses/:id', (req, res) => {
+    // validate if a course exists
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if (!course) res.status(404).send('The course does not exist');
+
+    // validate if the request is correct
+    const result = validateCourse(course);
+
+    if (result.error) {
+        // 400 bad request
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
+
+    // update course
+    course.name = req.body.name;
+    res.send(course);
+
+})
+
 app.get('/api/posts/:year/:month', (req, res) => {
     res.send(req.params);
 });
@@ -54,3 +73,12 @@ app.get('/api/posts/:year/:month', (req, res) => {
 // PORT
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}`));
+
+// validate if the request is correct
+function validateCourse(course) {
+    const schema = {
+        name: Joi.string().min(3).required()
+    };
+
+    return Joi.validate(course, schema); 
+}
