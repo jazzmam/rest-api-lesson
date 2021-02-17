@@ -26,11 +26,7 @@ app.get('/api/courses/:id', (req, res) => {
 
 app.post('/api/courses', (req, res) => {
     // using Joi we have to define a schema
-    const schema = {
-        name: Joi.string().min(3).required()
-    };
-
-    const result = Joi.validate(req.body, schema);
+    const result = validateCourse(req.body);
 
     if (result.error) {
         // 400 bad request
@@ -52,8 +48,12 @@ app.put('/appi/courses/:id', (req, res) => {
     if (!course) res.status(404).send('The course does not exist');
 
     // validate if the request is correct
-    const result = validateCourse(course);
+    // alternative - object distructuring 
+    // const { error } = validateCourse(req.body);
+    const result = validateCourse(req.body);
 
+    // alternative - object distructuring 
+    // if (error) {
     if (result.error) {
         // 400 bad request
         res.status(400).send(result.error.details[0].message);
